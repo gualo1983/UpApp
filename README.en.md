@@ -27,7 +27,7 @@
 * **Flatpak:** Installed on the system for updating Flatpak applications.
 
 ## Folder Structure
-
+```
 UpApp/
 ├── resources/
 │   ├── config.ini            # Configuration file
@@ -42,7 +42,7 @@ UpApp/
 ├── UpApp.sh                  # The main script
 ├── LICENSE                   # GPLv3 license file
 └── README.md                 # Markdown file explaining the project
-
+```
 
 ## How to Use
 

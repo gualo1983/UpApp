@@ -27,7 +27,7 @@
 * **Flatpak:** Installato sul sistema per l'aggiornamento delle applicazioni Flatpak.
 
 ## Struttura delle Cartelle
-
+```
 UpApp/
 ├── resources/
 │   ├── config.ini            # File di configurazione
@@ -42,7 +42,7 @@ UpApp/
 ├── UpApp.sh                  # Lo script principale
 ├── LICENSE                   # File della  licenza GPLv3
 └── README.md                 # File in markdown per la spiegazione del progetto
-
+```
 
 ## Come Utilizzare
 
