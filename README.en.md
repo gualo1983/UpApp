@@ -2,7 +2,7 @@
 
 [![Status: In Development]][status-badge]
 
-[status-badge]: https://img.shields.io/badge/Status-In%20Development-yellow
+[status-badge]: (https://img.shields.io/badge/Status-In%20Development-yellow)
 
 **UpApp** is a Bash script designed to simplify the updating of the operating system and Flatpak applications on various Linux distributions. The main goal is to automate the update process, providing visual notifications of the status and logging operations to a file.
 
