@@ -1,6 +1,6 @@
 # UpApp - Script di Aggiornamento del Sistema
 
-[![Stato: In Sviluppo]][status-badge]
+![Stato: In Sviluppo][status-badge]
 
 [status-badge]: https://img.shields.io/badge/Stato-In%20Sviluppo-yellow
 
