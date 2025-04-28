@@ -266,145 +266,178 @@ lang() {
 }
 
 # Function to perform the initialization of the program, 
+
 initialization() {
-  local error_found=0
-  local error_check=0
-  local max_attempts=3
-  local attempt=1
-  local distro=""
+   local error_found=0
+   local error_check=0
+   local max_attempts=3
+   local attempt=1
+   local distro=""
+   local is_config_corrupted=0 # Inizializza qui
 
-  while [ "$attempt" -le "$max_attempts" ]; do
-    error_found=0
-    error_check=0
+   local files_to_check=(
+     "$CONFIG_FILE"
+     "$ICON_SUCCESS"
+     "$ICON_RUNNING"
+     "$ICON_ERROR"
+   )
 
-    if ! check_file "$CONFIG_FILE" "initialization" "false"; then
-      log_message "$(lang "inizialization" "find_config_file" "$attempt")"
-      if ! check_dir "$RESOURCES_DIR" "initialization"; then
-        log_message "$(lang "inizialization" "create_dir_resources" "$RESOURCES_DIR")"
-        error_found=1
-      fi
-      if ! check_dir "$LANG_DIR" "initialization"; then
-        log_message "$(lang "inizialization" "create_dir_lang" "$LANG_DIR")"
-        error_found=1
-      fi
-      if ! check_file "$LANG_MISSING" "initialization" "true"; then
-        log_message "$(lang "inizialization" "create_lang_missing_file" "$LANG_MISSING")"
-        error_found=1
-      fi
-      if ! check_file "$CURRENT_LANG_FILE" "initialization" "true"; then
-        log_message "$(lang "inizialization" "create_current_lang_file" "$CURRENT_LANG_FILE")"
-        error_found=1
-      fi
-      if ! check_file "$LOG_FILE" "initialization" "true"; then
-        log_message "$(lang "inizialization" "create_log_file" "$LOG_FILE")"
-        error_found=1
-      fi 
-      if ! check_file "$CONFIG_FILE" "initialization" "true"; then
-        log_message "$(lang "inizialization" "create_config_file" "$CONFIG_FILE")"
-        error_found=1
-      fi
-      if ! check_file "$ICON_SUCCESS" "initialization" "false"; then
-        log_message "$(lang "inizialization" "check_icon_success_file" "$ICON_SUCCESS")"
-        error_found=1
-      fi
-      if ! check_file "$ICON_RUNNING" "initialization" "false"; then
-        log_message "$(lang "inizialization" "check_icon_running_file" "$ICON_RUNNING")"
-        error_found=1
-      fi
-      if ! check_file "$ICON_ERROR" "initialization" "false"; then
-        log_message "$(lang "inizialization" "check_icon_error_file" "$ICON_ERROR")"
-        error_found=1
-      fi
-      distro="$(get_distro)"
-        if [ $? -eq 1 ]; then
-          log_message "$(lang "inizialization" "get_distro")"
-          error_found=1
-        fi
-          if [ "$error_found" -eq 0 ]; then
-            log_message "$(lang "inizialization" "write_config_file" "$attempt")"
-            if ! write_value "$CONFIG_FILE" "os_detected" "$distro"; then
-            log_message "$(lang "inizialization" "os_detected" "$distro" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "resource_dir_exists" "true"; then
-            log_message "$(lang "inizialization" "resource_dir_exists" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "lang_dir_exists" "true"; then
-            log_message "$(lang "inizialization" "lang_dir_exists" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "config_file_exists" "true"; then
-            log_message "$(lang "inizialization" "config_file_exists" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "icon_success_exists" "true"; then
-            log_message "$(lang "inizialization" "icon_success_exists" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "icon_running_exists" "true"; then
-            log_message "$(lang "inizialization" "icon_running_exists" "$CONFIG_FILE")"
-            error_found=1
-            fi
-            if ! write_value "$CONFIG_FILE" "icon_error_exists" "true";then
-            log_message "$(lang "inizialization" "icon_error_exists" "$CONFIG_FILE")"
-            error_found=1
-          else
-            log_message "$(lang "inizialization" "written_values" "Initialization values written correctly to the configuration file")"
-            break # Exit the loop if initialization is successful
-          fi
-        else
-          log_message "$(lang "inizialization" "written_values_error_occurred" "$attempt")"
-        fi  
-    else
-      log_message "$(lang "inizialization" "config_already_exists" "$attempt")"
-      if [ "$(read_value "$CONFIG_FILE" "resource_dir_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_resource_dir_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$(read_value "$CONFIG_FILE" "lang_dir_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_lang_dir_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$(read_value "$CONFIG_FILE" "config_file_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_config_file_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$(read_value "$CONFIG_FILE" "icon_success_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_icon_success_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$(read_value "$CONFIG_FILE" "icon_running_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_icon_running_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$(read_value "$CONFIG_FILE" "icon_error_exists" )" != "true" ]; then
-        log_message "$(lang "inizialization" "read_icon_error_exists" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      local current_distro_check="$(get_distro)"
-      if [ $? -eq 0 ] && [ "$(read_value "$CONFIG_FILE" "os_detected" )" != "$current_distro_check" ]; then
-        log_message "$(lang "inizialization" "read_os_detected" "$CONFIG_FILE")"
-        error_check=1
-      fi
-      if [ "$error_check" -eq 0 ]; then
-        log_message "$(lang "inizialization" "config_ok")"
-        log_message "$(lang "inizialization" "check_executed_seccessfully" "$attempt")"
-        break # Exit the loop if the file is intact
-      else
-        log_message "$(lang "inizialization" "config_corrupted" "$attempt")"
-        rm "$CONFIG_FILE"
-      fi
-    fi
-    attempt=$((attempt + 1))
-  done
+   local files_to_create=(
+     "$LANG_MISSING"
+     "$CURRENT_LANG_FILE"
+     "$LOG_FILE"
+     "$CONFIG_FILE"
+   )
 
-  if [ "$attempt" -gt "$max_attempts" ]; then
-    handler_error "Inizialization" "$(lang "inizialization" "max_attemps" "$max_attempts")" "$ICON_ERROR"
-    return 1 # Indica un fallimento critico
-  fi
-    log_message "$(lang "inizialization" "inizialization_successfully")" "$ICON_SUCCESS"
-  return 0
+   local dirs_to_create=(
+     "$RESOURCES_DIR"
+     "$LANG_DIR"
+   )
+
+   local config_writes=(
+     "resource_dir_exists:true"
+     "lang_dir_exists:true"
+     "config_file_exists:true"
+     "icon_success_exists:true"
+     "icon_running_exists:true"
+     "icon_error_exists:true"
+   )
+
+   local config_checks=(
+     "resource_dir_exists:true:resource_dir_exists_read_error"
+     "lang_dir_exists:true:lang_dir_exists_read_error"
+     "config_file_exists:true:config_file_exists_read_error"
+     "icon_success_exists:true:icon_success_exists_read_error"
+     "icon_running_exists:true:icon_running_exists_read_error"
+     "icon_error_exists:true:icon_error_exists_read_error"
+   )
+
+   create_directories() {
+     local dir
+     for dir in "${dirs_to_create[@]}"; do
+ #      echo "DEBUG: create_directories - Verifico directory: $dir"
+       if ! check_dir "$dir" "initialization"; then
+         log_message "$(lang "initialization" "create_dir" "$(basename "$dir")" "$dir")"
+         error_found=1
+       fi
+     done
+   }
+
+   create_files() {
+     local file
+     for file in "${files_to_create[@]}"; do
+  #     echo "DEBUG: create_files - Verifico file (creazione se manca): $file"
+       if ! check_file "$file" "initialization" "true"; then
+         log_message "$(lang "initialization" "create_file" "$(basename "$file")" "$file")"
+         error_found=1
+       fi
+     done
+   }
+
+   check_files_exist() {
+     local file
+     for file in "${files_to_check[@]}"; do
+ #      echo "DEBUG: check_files_exist - Verifico esistenza file: $file"
+       if ! check_file "$file" "initialization" "false"; then
+         log_message "$(lang "initialization" "find_file" "$(basename "$file")" "$attempt")"
+         error_found=1
+       fi
+     done
+   }
+
+   while [ "$attempt" -le "$max_attempts" ]; do
+ #    echo "DEBUG: *** Inizio tentativo di inizializzazione numero: $attempt ***"
+     error_found=0
+     error_check=0
+     is_config_corrupted=0
+
+ #    echo "DEBUG: Chiamo check_file per CONFIG_FILE: $CONFIG_FILE (create_if_missing=false)"
+     if check_file "$CONFIG_FILE" "initialization" "false"; then
+ #      echo "DEBUG: check_file per CONFIG_FILE ha restituito 0 (il file ESISTE)"
+       log_message "$(lang "initialization" "config_already_exists" "$attempt")"
+
+       local check_item
+       local expected_value
+       local config_key
+       local log_key
+
+       for check_item in "${config_checks[@]}"; do
+         IFS=':' read -r config_key expected_value log_key <<< "$check_item"
+         local current_value="$(read_value "$CONFIG_FILE" "$config_key")"
+  #       echo "DEBUG: Controllo config esistente - chiave='$config_key', valore letto='$current_value', valore atteso='$expected_value'"
+         if [ "$current_value" != "$expected_value" ]; then
+           log_message "$(lang "initialization" "$log_key" "$CONFIG_FILE")"
+           is_config_corrupted=1
+         fi
+       done
+
+       local current_distro_check="$(get_distro)"
+       local stored_distro="$(read_value "$CONFIG_FILE" "os_detected")"
+  #     echo "DEBUG: Controllo OS - attuale='$current_distro_check', memorizzato='$stored_distro' (codice get_distro: $?)"
+       if [ $? -eq 0 ] && [ "$stored_distro" != "$current_distro_check" ]; then
+         log_message "$(lang "initialization" "os_detected_read_error" "$CONFIG_FILE")"
+         is_config_corrupted=1
+       fi
+
+       if [ "$is_config_corrupted" -eq 0 ]; then
+         log_message "$(lang "initialization" "config_ok")"
+         log_message "$(lang "initialization" "check_executed_successfully" "$attempt")"
+         break # Exit the loop if the file is intact
+       else
+         log_message "$(lang "initialization" "config_corrupted" "$attempt")"
+   #      echo "DEBUG: Provo a rimuovere il file CONFIG_FILE: $CONFIG_FILE"
+         rm "$CONFIG_FILE"
+       fi
+     else
+   #    echo "DEBUG: check_file per CONFIG_FILE ha restituito 1 (il file NON ESISTE)"
+       log_message "$(lang "initialization" "find_config_file" "$attempt")"
+       create_directories
+       create_files
+       check_files_exist
+
+       distro="$(get_distro)"
+  #     echo "DEBUG: get_distro ha restituito: $distro (codice uscita: $?)"
+       if [ $? -eq 1 ]; then
+         log_message "$(lang "initialization" "get_distro")"
+         error_found=1
+       fi
+
+       if [ "$error_found" -eq 0 ]; then
+         log_message "$(lang "initialization" "write_config_file" "$attempt")"
+         config_writes+=("os_detected:$distro")
+         local key_value
+         local key
+         local value
+
+         for key_value in "${config_writes[@]}"; do
+           IFS=':' read -r key value <<< "$key_value"
+   #        echo "DEBUG: Scrivo nel config: chiave='$key', valore='$value'"
+           if ! write_value "$CONFIG_FILE" "$key" "$value"; then
+             log_message "$(lang "initialization" "write_value_error" "$key" "$value" "$CONFIG_FILE")"
+             error_found=1
+           fi
+         done
+
+         if [ "$error_found" -eq 0 ]; then
+           log_message "$(lang "initialization" "written_values")"
+           break # Exit the loop if initialization is successful
+         else
+           log_message "$(lang "initialization" "written_values_error_occurred" "$attempt")"
+         fi
+       else
+         log_message "$(lang "initialization" "error_creating_resources" "$attempt")"
+       fi
+     fi
+     attempt=$((attempt + 1))
+   #  echo "DEBUG: *** Fine tentativo numero: $attempt - Stato error_found: $error_found, error_check: $error_check, is_config_corrupted: $is_config_corrupted ***"
+   done
+
+   if [ "$attempt" -gt "$max_attempts" ]; then
+     handler_error "Initialization" "$(lang "initialization" "max_attempts" "$max_attempts")" "$ICON_ERROR"
+     return 1 # Indicates a critical failure
+   fi
+   log_message "$(lang "initialization" "initialization_successfully")" "$ICON_SUCCESS"
+   return 0
 }
 
 # check and if necessary install libnotify
